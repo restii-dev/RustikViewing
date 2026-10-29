@@ -1,17 +1,24 @@
 # RustikViewing
 
-Self-hosted **Scramjet** proxy for [RustikOP](https://github.com/restii-dev/RustikOP).
+**Your own Scramjet proxy** for [RustikOP](https://restii-dev.github.io/RustikOP/).
 
 ## Live
 https://restii-dev.github.io/RustikViewing/
 
-## Stack
-- Scramjet service worker (`sw.js` + `scramjet/`)
-- BareMux + Epoxy transport
-- Public Wisp servers (Virginia / Ohio / Oregon / Anura)
+## What it is
+- Service worker proxy (`/service/<encoded-url>`)
+- Scramjet rewriter (assets from epose)
+- BareMux + Epoxy over public **Wisp** servers
+- UI with Wisp server picker
 
-## Enable Pages
-Settings → Pages → branch `main` → root `/`
+## Enable GitHub Pages
+**Settings → Pages → Deploy from branch `main` → folder `/` (root)**
 
-## Deep links
-`/?url=https://example.com`
+Without Pages enabled, the site will 404.
+
+## From RustikOP
+RustikOP default proxy is RustikViewing:
+`https://restii-dev.github.io/RustikViewing/?url=https://example.com`
+
+## Fallback
+If the engine fails, links fall back to epose Scramjet.

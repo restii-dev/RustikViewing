@@ -13,8 +13,9 @@ const SCRAMJET_FILES = {
   sync: EPOSE + "/scramjet/scramjet.sync.js",
   wasm: EPOSE + "/scramjet/scramjet.wasm.wasm"
 };
-const BAREMUX_SCRIPT = BASE + "/baremux/index.js";
-const BAREMUX_WORKER = BASE + "/baremux/worker.js";
+// Client can load cross-origin; SharedWorker must be same-origin
+const BAREMUX_SCRIPT = EPOSE + "/baremux/index.js";
+const BAREMUX_WORKER = (BASE || "") + "/baremux/worker.js";
 const EPOXY_MODULE = EPOSE + "/epoxy/index.mjs";
 const DEFAULT_WISP = "wss://serv-1-va.onrender.com/";
 const WISP_SERVERS = [
@@ -24,8 +25,8 @@ const WISP_SERVERS = [
   { id: "or4", name: "Oregon 4", url: "wss://serv-4-or.onrender.com/" },
   { id: "anura", name: "Anura", url: "wss://anura.pro/" }
 ];
-const SW_URL = BASE + "/sw.js";
-const SW_SCOPE = (BASE + "/") || "/";
+const SW_URL = (BASE || "") + "/sw.js";
+const SW_SCOPE = (BASE || "") + "/" || "/";
 
 let engineController = null;
 let muxConnection = null;
@@ -59,7 +60,10 @@ function setStatus(msg, ok) {
 
 async function applyMuxTransport() {
   const wisp = currentWisp();
-  muxConnection = new BareMux.BareMuxConnection(BAREMUX_WORKER);
+  const workerPath = BAREMUX_WORKER.startsWith("http") ? BAREMUX_WORKER : (location.origin + (BAREMUX_WORKER.startsWith("/") ? BAREMUX_WORKER : "/" + BAREMUX_WORKER.replace(/^\//,"")));
+  // BareMux wants absolute or root-relative path
+  const path = BAREMUX_WORKER.startsWith("/") ? BAREMUX_WORKER : "/" + BAREMUX_WORKER.replace(/^\//,"");
+  muxConnection = new BareMux.BareMuxConnection(path);
   await muxConnection.setTransport(EPOXY_MODULE, [{ wisp }]);
   return EPOXY_MODULE;
 }
@@ -101,7 +105,7 @@ async function initEngine() {
     }
 
     setStatus("Registering service worker…");
-    await navigator.serviceWorker.register(SW_URL, { scope: SW_SCOPE, updateViaCache: "none" });
+    await navigator.serviceWorker.register(SW_URL, { scope: "/", updateViaCache: "none" });
     await navigator.serviceWorker.ready;
 
     setStatus("Connecting Wisp transport…");
