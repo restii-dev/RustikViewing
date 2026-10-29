@@ -7,14 +7,15 @@ const BASE = (() => {
   return p;
 })();
 const SCRAMJET_PREFIX = BASE + "/service/";
+const EPOSE = "https://restii-dev.github.io/epose";
 const SCRAMJET_FILES = {
-  all: BASE + "/scramjet/scramjet.all.js",
-  sync: BASE + "/scramjet/scramjet.sync.js",
-  wasm: "https://restii-dev.github.io/epose/scramjet/scramjet.wasm.wasm"
+  all: EPOSE + "/scramjet/scramjet.all.js",
+  sync: EPOSE + "/scramjet/scramjet.sync.js",
+  wasm: EPOSE + "/scramjet/scramjet.wasm.wasm"
 };
 const BAREMUX_SCRIPT = BASE + "/baremux/index.js";
 const BAREMUX_WORKER = BASE + "/baremux/worker.js";
-const EPOXY_MODULE = "https://restii-dev.github.io/epose/epoxy/index.mjs";
+const EPOXY_MODULE = EPOSE + "/epoxy/index.mjs";
 const DEFAULT_WISP = "wss://serv-1-va.onrender.com/";
 const WISP_SERVERS = [
   { id: "va1", name: "Virginia 1", url: "wss://serv-1-va.onrender.com/" },
@@ -24,13 +25,13 @@ const WISP_SERVERS = [
   { id: "anura", name: "Anura", url: "wss://anura.pro/" }
 ];
 const SW_URL = BASE + "/sw.js";
-const SW_SCOPE = BASE + "/" || "/";
+const SW_SCOPE = (BASE + "/") || "/";
 
 let engineController = null;
 let muxConnection = null;
 let engineReady = false;
 let engineInitPromise = null;
-let settings = { wispId: "va1", transport: "epoxy" };
+let settings = { wispId: "va1" };
 
 function loadScript(src) {
   return new Promise((resolve, reject) => {
@@ -130,13 +131,12 @@ async function openProxied(raw) {
     if (!engineReady) await initEngine();
   } catch (e) {
     setStatus(String(e.message || e), false);
-    window.open("https://restii-dev.github.io/epose/#/" + encodeURIComponent(target), "_blank");
+    window.open(EPOSE + "/#/" + encodeURIComponent(target), "_blank");
     return;
   }
   const path = SCRAMJET_PREFIX + encodeURIComponent(target);
-  const landing = document.getElementById("landing");
+  document.getElementById("landing").style.display = "none";
   const frame = document.getElementById("frame");
-  landing.style.display = "none";
   frame.classList.add("show");
   frame.src = path;
   setStatus("Proxied · " + target, true);
@@ -172,6 +172,9 @@ function setWisp(id) {
 }
 
 window.RustikViewing = { open: openProxied, init: initEngine };
+window.openProxied = openProxied;
+window.go = go;
+window.home = home;
 
 document.addEventListener("DOMContentLoaded", () => {
   const sel = document.getElementById("wispSelect");
