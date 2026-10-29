@@ -9,26 +9,29 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:Inter,system-ui,sans-serif;min-height:100vh;background:#1a1410;color:#e8d5c0;display:flex;flex-direction:column}
 .top{height:52px;display:flex;align-items:center;gap:10px;padding:0 14px;background:rgba(40,30,24,.95);border-bottom:1px solid rgba(196,92,38,.3)}
-.logo{font-weight:700;font-size:1.1rem;color:#e07a3a;white-space:nowrap}
-.bar{flex:1;display:flex;gap:8px;align-items:center;max-width:900px}
+.logo{font-weight:700;font-size:1.05rem;color:#e07a3a;white-space:nowrap}
+.bar{flex:1;display:flex;gap:8px;align-items:center;max-width:920px}
 .bar input{flex:1;padding:10px 14px;border-radius:999px;border:1px solid rgba(196,92,38,.35);background:#2a211c;color:#e8d5c0;font-size:.95rem;outline:none}
-.bar button,.btn{padding:10px 16px;border-radius:999px;border:1px solid rgba(196,92,38,.4);background:linear-gradient(135deg,#d4692a,#9c3f12);color:#fff;font-weight:600;cursor:pointer;font-size:.85rem}
+.bar button{padding:10px 16px;border-radius:999px;border:1px solid rgba(196,92,38,.4);background:linear-gradient(135deg,#d4692a,#9c3f12);color:#fff;font-weight:600;cursor:pointer;font-size:.85rem}
 .bar button.ghost{background:#2a211c;color:#e8d5c0}
-.bar select{padding:8px 10px;border-radius:999px;border:1px solid rgba(196,92,38,.35);background:#2a211c;color:#e8d5c0;font-size:.8rem}
-.main{flex:1;display:flex;flex-direction:column}
+.main{flex:1;display:flex;flex-direction:column;min-height:0}
 #frame{flex:1;width:100%;border:none;background:#0d0a08;display:none}
 #frame.show{display:block}
 .landing{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center}
-.landing h1{font-size:2.4rem;margin-bottom:8px;background:linear-gradient(135deg,#e07a3a,#c45c26);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.landing p{color:#b89b7a;margin-bottom:28px;max-width:440px;line-height:1.5}
-.search{width:100%;max-width:520px;display:flex;gap:10px;margin-bottom:28px}
+.landing h1{font-size:2.3rem;margin-bottom:8px;background:linear-gradient(135deg,#e07a3a,#c45c26);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.landing p{color:#b89b7a;margin-bottom:22px;max-width:480px;line-height:1.55;font-size:.95rem}
+.search{width:100%;max-width:520px;display:flex;gap:10px;margin-bottom:20px}
 .search input{flex:1;padding:14px 18px;border-radius:999px;border:1.5px solid rgba(196,92,38,.4);background:#2a211c;color:#e8d5c0;font-size:1.05rem;outline:none}
-.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:520px}
+.search button{padding:14px 20px;border-radius:999px;border:none;background:linear-gradient(135deg,#d4692a,#9c3f12);color:#fff;font-weight:600;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:520px;margin-bottom:24px}
 .chips button{padding:8px 14px;border-radius:999px;border:1px solid rgba(196,92,38,.25);background:#2a211c;color:#e8d5c0;cursor:pointer;font-size:.8rem}
 .chips button:hover{border-color:#c45c26}
-.status{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(40,30,24,.95);border:1px solid rgba(196,92,38,.3);border-radius:999px;padding:8px 16px;font-size:.78rem;color:#b89b7a;z-index:20;max-width:90vw}
-.status.ok{color:#6abf4b}
-.status.err{color:#e07a3a}
+.card{width:100%;max-width:520px;text-align:left;background:#2a211c;border:1px solid rgba(196,92,38,.25);border-radius:14px;padding:14px 16px;margin-top:8px}
+.card label{display:block;font-size:.75rem;color:#b89b7a;margin-bottom:6px}
+.card input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(196,92,38,.3);background:#1a1410;color:#e8d5c0;font-size:.85rem}
+.card .hint{font-size:.72rem;color:#8a735c;margin-top:8px;line-height:1.4}
+.status{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(40,30,24,.95);border:1px solid rgba(196,92,38,.3);border-radius:999px;padding:8px 16px;font-size:.78rem;color:#b89b7a;z-index:20;max-width:92vw}
+.status.ok{color:#6abf4b}.status.err{color:#e07a3a}
 </style>
 </head>
 <body>
@@ -38,29 +41,31 @@ body{font-family:Inter,system-ui,sans-serif;min-height:100vh;background:#1a1410;
     <input id="urlBar" type="text" placeholder="https://example.com or search…" onkeydown="if(event.key==='Enter')go()">
     <button onclick="go()">Go</button>
     <button class="ghost" onclick="home()">Home</button>
-    <select id="wispSelect" title="Wisp server"></select>
   </div>
 </div>
 <div class="main">
   <div class="landing" id="landing">
     <h1>RustikViewing</h1>
-    <p>Self-hosted Scramjet proxy. Service worker + Wisp transport — your own gateway, not a random proxy homepage.</p>
+    <p>Ground-up proxy — custom service worker + HTML rewriter. Point it at <strong>your</strong> Worker backend (free Cloudflare deploy).</p>
     <div class="search">
       <input id="mainSearch" type="text" placeholder="Enter URL or search" onkeydown="if(event.key==='Enter')go(true)">
-      <button class="btn" onclick="go(true)">Open</button>
+      <button onclick="go(true)">Open</button>
     </div>
     <div class="chips">
+      <button onclick="openProxied('https://example.com/')">example.com</button>
+      <button onclick="openProxied('https://www.wikipedia.org/')">Wikipedia</button>
+      <button onclick="openProxied('https://news.ycombinator.com/')">HN</button>
       <button onclick="openProxied('https://www.google.com/')">Google</button>
-      <button onclick="openProxied('https://www.youtube.com/')">YouTube</button>
-      <button onclick="openProxied('https://discord.com/app')">Discord</button>
-      <button onclick="openProxied('https://hl2.slqnt.dev/')">HL2 Port</button>
-      <button onclick="openProxied('https://poki.com/en/g/retro-bowl')">Retro Bowl</button>
-      <button onclick="openProxied('https://now.gg/apps/roblox-corporation/5349/roblox.html')">Roblox</button>
+    </div>
+    <div class="card">
+      <label>Proxy backend URL (Cloudflare Worker)</label>
+      <input id="backendUrl" type="text" placeholder="https://your-worker.you.workers.dev" onchange="saveBackend()">
+      <p class="hint">Deploy <code>worker.js</code> from this repo to Cloudflare Workers (free). Paste the worker URL here. Without it, a public relay is used (limited).</p>
     </div>
   </div>
-  <iframe id="frame" title="Proxied"></iframe>
+  <iframe id="frame" title="Proxied" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"></iframe>
 </div>
-<div class="status" id="status">initializing proxy…</div>
-<script src="engine.js"></script>
+<div class="status" id="status">registering service worker…</div>
+<script src="client.js"></script>
 </body>
 </html>

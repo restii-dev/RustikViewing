@@ -1,24 +1,52 @@
-# RustikViewing
+# RustikViewing — ground-up proxy
 
-**Your own Scramjet proxy** for [RustikOP](https://restii-dev.github.io/RustikOP/).
+Custom proxy stack. **No Scramjet, no epose, no Croxy.**
 
-## Live
-https://restii-dev.github.io/RustikViewing/
+## Architecture
 
-## What it is
-- Service worker proxy (`/service/<encoded-url>`)
-- Scramjet rewriter (assets from epose)
-- BareMux + Epoxy over public **Wisp** servers
-- UI with Wisp server picker
+```
+Browser (index.html + client.js)
+    → Service Worker (sw.js)  intercepts /p/<base64-url>
+        → Your Cloudflare Worker (worker.js)  fetches the real site
+            → Target website
+        ← HTML rewritten so links stay in the proxy
+    ← Rendered in iframe
+```
 
-## Enable GitHub Pages
-**Settings → Pages → Deploy from branch `main` → folder `/` (root)**
+## 1. Deploy the backend (required for real proxying)
 
-Without Pages enabled, the site will 404.
+### Cloudflare Workers (free)
 
-## From RustikOP
-RustikOP default proxy is RustikViewing:
-`https://restii-dev.github.io/RustikViewing/?url=https://example.com`
+1. Go to [Cloudflare Dashboard → Workers](https://dash.cloudflare.com/)
+2. Create a Worker
+3. Paste the contents of `worker.js`
+4. Deploy
+5. Copy the URL, e.g. `https://rustikviewing.yourname.workers.dev`
 
-## Fallback
-If the engine fails, links fall back to epose Scramjet.
+Or with Wrangler:
+
+```bash
+npx wrangler deploy worker.js --name rustikviewing
+```
+
+## 2. Enable GitHub Pages
+
+Repo **Settings → Pages → branch `main` → folder `/`**
+
+Live UI: https://restii-dev.github.io/RustikViewing/
+
+## 3. Connect UI → Worker
+
+On the RustikViewing home page, paste your Worker URL into **Proxy backend URL**.
+
+## Deep links (from RustikOP)
+
+```
+https://restii-dev.github.io/RustikViewing/?url=https://example.com
+```
+
+## Limits
+
+- Without your Worker, a public relay is used (fragile, often blocked).
+- Complex apps (Discord, full YouTube app) need a heavier engine (Scramjet/UV) or more rewrite rules.
+- This stack is **yours** — you control the Worker code and can extend rewriting.
