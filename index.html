@@ -9,24 +9,24 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:Inter,system-ui,sans-serif;min-height:100vh;background:#1a1410;color:#e8d5c0;display:flex;flex-direction:column}
 .top{height:52px;display:flex;align-items:center;gap:10px;padding:0 14px;background:rgba(40,30,24,.95);border-bottom:1px solid rgba(196,92,38,.3)}
-.logo{font-weight:700;font-size:1.1rem;color:#e07a3a;letter-spacing:-.02em;white-space:nowrap}
+.logo{font-weight:700;font-size:1.1rem;color:#e07a3a;white-space:nowrap}
 .bar{flex:1;display:flex;gap:8px;align-items:center;max-width:900px}
 .bar input{flex:1;padding:10px 14px;border-radius:999px;border:1px solid rgba(196,92,38,.35);background:#2a211c;color:#e8d5c0;font-size:.95rem;outline:none}
-.bar input:focus{border-color:#c45c26}
 .bar button,.btn{padding:10px 16px;border-radius:999px;border:1px solid rgba(196,92,38,.4);background:linear-gradient(135deg,#d4692a,#9c3f12);color:#fff;font-weight:600;cursor:pointer;font-size:.85rem}
 .bar button.ghost{background:#2a211c;color:#e8d5c0}
-.main{flex:1;display:flex;flex-direction:column;position:relative}
+.bar select{padding:8px 10px;border-radius:999px;border:1px solid rgba(196,92,38,.35);background:#2a211c;color:#e8d5c0;font-size:.8rem}
+.main{flex:1;display:flex;flex-direction:column}
 #frame{flex:1;width:100%;border:none;background:#0d0a08;display:none}
 #frame.show{display:block}
 .landing{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center}
 .landing h1{font-size:2.4rem;margin-bottom:8px;background:linear-gradient(135deg,#e07a3a,#c45c26);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.landing p{color:#b89b7a;margin-bottom:28px;max-width:420px;line-height:1.5}
+.landing p{color:#b89b7a;margin-bottom:28px;max-width:440px;line-height:1.5}
 .search{width:100%;max-width:520px;display:flex;gap:10px;margin-bottom:28px}
 .search input{flex:1;padding:14px 18px;border-radius:999px;border:1.5px solid rgba(196,92,38,.4);background:#2a211c;color:#e8d5c0;font-size:1.05rem;outline:none}
 .chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:520px}
 .chips button{padding:8px 14px;border-radius:999px;border:1px solid rgba(196,92,38,.25);background:#2a211c;color:#e8d5c0;cursor:pointer;font-size:.8rem}
 .chips button:hover{border-color:#c45c26}
-.status{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(40,30,24,.95);border:1px solid rgba(196,92,38,.3);border-radius:999px;padding:8px 16px;font-size:.78rem;color:#b89b7a;z-index:20}
+.status{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(40,30,24,.95);border:1px solid rgba(196,92,38,.3);border-radius:999px;padding:8px 16px;font-size:.78rem;color:#b89b7a;z-index:20;max-width:90vw}
 .status.ok{color:#6abf4b}
 .status.err{color:#e07a3a}
 </style>
@@ -35,145 +35,32 @@ body{font-family:Inter,system-ui,sans-serif;min-height:100vh;background:#1a1410;
 <div class="top">
   <div class="logo">RustikViewing</div>
   <div class="bar">
-    <input id="urlBar" type="text" placeholder="https://example.com or search..." onkeydown="if(event.key==='Enter')go()">
+    <input id="urlBar" type="text" placeholder="https://example.com or search…" onkeydown="if(event.key==='Enter')go()">
     <button onclick="go()">Go</button>
     <button class="ghost" onclick="home()">Home</button>
+    <select id="wispSelect" title="Wisp server"></select>
   </div>
 </div>
 <div class="main">
   <div class="landing" id="landing">
     <h1>RustikViewing</h1>
-    <p>Your proxy. Type a URL or search — traffic routes through Scramjet / public transports when available.</p>
+    <p>Self-hosted Scramjet proxy. Service worker + Wisp transport — your own gateway, not a random proxy homepage.</p>
     <div class="search">
       <input id="mainSearch" type="text" placeholder="Enter URL or search" onkeydown="if(event.key==='Enter')go(true)">
       <button class="btn" onclick="go(true)">Open</button>
     </div>
     <div class="chips">
-      <button onclick="openUrl('https://www.google.com/')">Google</button>
-      <button onclick="openUrl('https://www.youtube.com/')">YouTube</button>
-      <button onclick="openUrl('https://discord.com/app')">Discord</button>
-      <button onclick="openUrl('https://hl2.slqnt.dev/')">HL2 Port</button>
-      <button onclick="openUrl('https://poki.com/en/g/retro-bowl')">Retro Bowl</button>
-      <button onclick="openUrl('https://now.gg/apps/roblox-corporation/5349/roblox.html')">Roblox</button>
+      <button onclick="openProxied('https://www.google.com/')">Google</button>
+      <button onclick="openProxied('https://www.youtube.com/')">YouTube</button>
+      <button onclick="openProxied('https://discord.com/app')">Discord</button>
+      <button onclick="openProxied('https://hl2.slqnt.dev/')">HL2 Port</button>
+      <button onclick="openProxied('https://poki.com/en/g/retro-bowl')">Retro Bowl</button>
+      <button onclick="openProxied('https://now.gg/apps/roblox-corporation/5349/roblox.html')">Roblox</button>
     </div>
   </div>
-  <iframe id="frame" title="Proxied content"></iframe>
+  <iframe id="frame" title="Proxied"></iframe>
 </div>
 <div class="status" id="status">initializing proxy…</div>
-
-<script>
-/**
- * RustikViewing — lightweight proxy gateway
- * Uses Scramjet when service worker + transports work;
- * falls back to epose Scramjet instance and form-based web proxies.
- */
-const EPOSE = 'https://restii-dev.github.io/epose/';
-const STATUS = document.getElementById('status');
-
-function setStatus(msg, cls) {
-  STATUS.textContent = msg;
-  STATUS.className = 'status' + (cls ? ' ' + cls : '');
-}
-
-function normalize(q) {
-  q = (q || '').trim();
-  if (!q) return null;
-  if (!/^https?:\/\//i.test(q)) {
-    if (q.includes('.') && !q.includes(' ')) return 'https://' + q;
-    return 'https://www.google.com/search?q=' + encodeURIComponent(q);
-  }
-  return q;
-}
-
-// Preferred: open through your Scramjet stack (epose) which already has baremux/epoxy/scram
-function scramjetUrl(target) {
-  return EPOSE + '#/' + encodeURIComponent(target);
-}
-
-// Secondary: Croxy form-submit in new tab
-function croxySubmit(target) {
-  const f = document.createElement('form');
-  f.method = 'POST';
-  f.action = 'https://www.croxyproxy.com/servers';
-  f.target = '_blank';
-  f.style.display = 'none';
-  const i = document.createElement('input');
-  i.name = 'url';
-  i.value = target;
-  f.appendChild(i);
-  document.body.appendChild(f);
-  f.submit();
-  setTimeout(() => f.remove(), 400);
-}
-
-function openInFrame(src) {
-  const landing = document.getElementById('landing');
-  const frame = document.getElementById('frame');
-  landing.style.display = 'none';
-  frame.classList.add('show');
-  frame.src = src;
-  document.getElementById('urlBar').value = src;
-}
-
-function openUrl(raw) {
-  const target = normalize(raw);
-  if (!target) return;
-  document.getElementById('urlBar').value = target;
-  document.getElementById('mainSearch').value = target;
-
-  // Primary path: Scramjet via epose (real proxy, not a homepage dump)
-  const sj = scramjetUrl(target);
-  setStatus('loading via Scramjet…');
-  try {
-    // Prefer new tab for full SW isolation (works better on Chromebook)
-    const w = window.open(sj, '_blank');
-    if (!w) {
-      // popup blocked — use frame
-      openInFrame(sj);
-      setStatus('proxied in-frame · ' + target, 'ok');
-    } else {
-      setStatus('opened Scramjet tab · ' + target, 'ok');
-    }
-  } catch (e) {
-    setStatus('scramjet failed, trying croxy…', 'err');
-    croxySubmit(target);
-  }
-}
-
-function go(fromMain) {
-  const q = fromMain
-    ? document.getElementById('mainSearch').value
-    : document.getElementById('urlBar').value;
-  if (!q || !q.trim()) {
-    window.open('about:blank', '_blank');
-    return;
-  }
-  openUrl(q);
-}
-
-function home() {
-  document.getElementById('frame').classList.remove('show');
-  document.getElementById('frame').src = 'about:blank';
-  document.getElementById('landing').style.display = 'flex';
-  setStatus('ready', 'ok');
-}
-
-// Deep link: ?url= or #/
-(function boot() {
-  setStatus('ready · Scramjet gateway', 'ok');
-  const params = new URLSearchParams(location.search);
-  const q = params.get('url') || params.get('q');
-  if (q) openUrl(q);
-  if (location.hash && location.hash.length > 2) {
-    try {
-      const h = decodeURIComponent(location.hash.slice(2));
-      if (h.startsWith('http')) openUrl(h);
-    } catch (e) {}
-  }
-})();
-
-// API for parent hubs (RustikOP)
-window.RustikViewing = { open: openUrl, normalize };
-</script>
+<script src="engine.js"></script>
 </body>
 </html>
